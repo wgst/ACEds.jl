@@ -113,17 +113,17 @@ function error_stats(fdata, mbf;  atoms_sym=:at,reg_epsilon = 0.01)
     for tt in ["train", "test"]
     );
     df_abs = DataFrame();
-    df_abs.Data = ["Train MSE", "Train MAE", "Test MSE", "Test MAE"];
+    df_abs.Data = ["Train RMSE", "Train MAE", "Test RMSE", "Test MAE"];
     for (s,st) in zip([:all, :diag, :subdiag, :offdiag], ["All Entries", "Diagnal", "Sub-Diagonal","Off-Diagoal"])
-        df_abs[!, st] = [merrors[tt]["entries"][:abs][s][er] for tt = ["train","test"] for er = [:mse,:mae]  ]
+        df_abs[!, st] = [merrors[tt]["entries"][:abs][s][er] for tt = ["train","test"] for er = [:rmsd,:mae]  ]
     end 
     @info "Absolute errors (entry-wise)" 
     println(df_abs)
     
     df_rel = DataFrame();
-    df_rel.Data = ["Train MSE", "Train MAE", "Test MSE", "Test MAE"];
+    df_rel.Data = ["Train RMSE", "Train MAE", "Test RMSE", "Test MAE"];
     for (s,st) in zip([:all, :diag, :subdiag, :offdiag], ["All Entries", "Diagnal", "Sub-Diagonal","Off-Diagoal"])
-        df_rel[!, st] = [merrors[tt]["entries"][:rel][s][er] for tt = ["train","test"] for er = [:mse,:mae]  ]
+        df_rel[!, st] = [merrors[tt]["entries"][:rel][s][er] for tt = ["train","test"] for er = [:rmsd,:mae]  ]
     end 
     @info "Relative errors (entry-wise)" 
     println(df_rel)
@@ -132,7 +132,7 @@ function error_stats(fdata, mbf;  atoms_sym=:at,reg_epsilon = 0.01)
     df_matrix.Data = ["Train (abs)", "Test (abs)", "Train (rel)", "Test (rel)"]
     df_matrix[!, "Frobenius"] = [merrors[tt]["matrix"][ar][:frob] for ar = [:abs,:rel] for tt = ["train","test"] ];
     df_matrix[!, "Matrix RMSD"] = [merrors[tt]["matrix"][ar][:rmsd] for ar = [:abs,:rel] for tt = ["train","test"] ];
-    df_matrix[!, "Matrix MSE"] = [merrors[tt]["matrix"][ar][:mse] for ar = [:abs,:rel] for tt = ["train","test"] ];
+    df_matrix[!, "Matrix RMSE"] = [merrors[tt]["matrix"][ar][:rmsd] for ar = [:abs,:rel] for tt = ["train","test"] ];
     df_matrix[!, "Matrix MAE"] = [merrors[tt]["matrix"][ar][:mae] for ar = [:abs,:rel] for tt = ["train","test"] ];
     @info "Matrix errors" 
     println(df_matrix)
@@ -155,7 +155,7 @@ function plot_error(fdata, mbf; merrors=nothing, kvargs...)
             for (i, symb) in enumerate([:diag, :subdiag, :offdiag])
                 xdat = reinterpret(Array{Float64},tentries[tt][:true][symb])
                 ydat = reinterpret(Array{Float64},tentries[tt][:fit][symb])
-                ax[k,i].plot(xdat, ydat, "b.",alpha=.8,markersize=.75)
+                ax[k,i].plot(xdat, ydat, "b.",alpha=.8,markersize=5.0, markeredgecolor="black",markerfacecolor='cadetblue')
                 ax[k,i].set_aspect("equal", "box")
                 #@show maxpos, maxneg
                 #axis("square")
@@ -186,10 +186,10 @@ function plot_error(fdata, mbf; merrors=nothing, kvargs...)
         end
         if merrors !== nothing
             for (k,tt) in enumerate(["train","test"])
-                mse_err = num2str(merrors[tt]["entries"][:abs][symb][:mse])
+                rmse_err = num2str(merrors[tt]["entries"][:abs][symb][:rmsd])
                 mae_err = num2str(merrors[tt]["entries"][:abs][symb][:mae])
                 ax[k,i].text(
-                0.25, 0.9, string("MSE: ",mse_err, "\n", "MAE: ", mae_err ), 
+                0.25, 0.9, string("RMSE: ",rmse_err, "\n", "MAE: ", mae_err ), 
                 transform=ax[k,i].transAxes, ha="center", va="center",
                 bbox=Dict(:boxstyle=>"square,pad=0.3",:fc=>"none", :ec=>"black"),
                 rotation=0, size=fz)
@@ -229,7 +229,7 @@ function plot_error_all(fdata, mbf; merrors=nothing, kvargs...)
         for (i, symb) in enumerate([:diag, :subdiag, :offdiag])
             xdat = reinterpret(Array{Float64},tentries[tt][:true][symb])
             ydat = reinterpret(Array{Float64},tentries[tt][:fit][symb])
-            ax[k].plot(xdat, ydat, "b.",alpha=.8,markersize=.75)
+            ax[k].plot(xdat, ydat, "b.",alpha=.8,markersize=5.0, markeredgecolor="black",markerfacecolor='cadetblue')
             ax[k].set_aspect("equal", "box")
             #@show maxpos, maxneg
             #axis("square")
@@ -256,10 +256,10 @@ function plot_error_all(fdata, mbf; merrors=nothing, kvargs...)
     end
     if merrors !== nothing
         for (k,tt) in enumerate(["train","test"])
-            mse_err = num2str(merrors[tt]["entries"][:abs][:all][:mse])
+            rmse_err = num2str(merrors[tt]["entries"][:abs][:all][:rmsd])
             mae_err = num2str(merrors[tt]["entries"][:abs][:all][:mae])
             ax[k].text(
-            0.25, 0.9, string("MSE: ",mse_err, "\n", "MAE: ", mae_err ), 
+            0.25, 0.9, string("RMSE: ",rmse_err, "\n", "MAE: ", mae_err ), 
             transform=ax[k].transAxes, ha="center", va="center",
             bbox=Dict(:boxstyle=>"square,pad=0.3",:fc=>"none", :ec=>"black"),
             rotation=0, size=fz)

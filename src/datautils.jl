@@ -8,6 +8,42 @@ using ACEds.Utils: reinterpret
 using StaticArrays, SparseArrays
 export FrictionData, BlockDenseArray 
 
+function json2internal_no_ef(filename)
+    function _array2svector(x::Array{T,2}) where {T}
+        return [ SVector{3}(x[i,:]) for i in 1:size(x)[1] ]
+    end
+    df = Pandas.read_json(filename)
+    return @showprogress [ 
+        begin 
+            d = iloc(df)[i]
+            at = JuLIP.Atoms(;
+                X=_array2svector(d.positions),
+                Z=d.atypes, 
+                cell=d.cell,
+                pbc=d.pbc
+            )
+            set_pbc!(at,d.pbc)
+            # convert friction indicxes from "starting at 0 indexing" to "starting at 1 indexing" format 
+            friction_indices = Int64.(d.friction_indices.+1)[:]
+            # convert provided friction values into sparse array of correct dimension
+            friction_tensor =   reinterpret(Matrix{SMatrix{3,3,Float64,9}}, d.friction_tensor)
+            I, J, vals = Int64[], Int64[], eltype(friction_tensor)[]
+            for (ki,i) in enumerate(friction_indices) 
+                for (kj,j) in enumerate(friction_indices) 
+                    push!(I, i)
+                    push!(J, j)
+                    push!(vals,friction_tensor[ki,kj])
+                end
+            end 
+            sparse_friction_tensor = sparse(I, J, vals, length(at), length(at))
+            (   at=at, 
+                friction_tensor = sparse_friction_tensor,
+                friction_indices = friction_indices,
+            ) 
+        end 
+        for i in 1:length(df)];
+end
+
 function json2internal(filename )
     function _array2svector(x::Array{T,2}) where {T}
         return [ SVector{3}(x[i,:]) for i in 1:size(x)[1] ]
