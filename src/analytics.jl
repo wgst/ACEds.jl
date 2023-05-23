@@ -61,11 +61,13 @@ function matrix_entry_errors(fdata, mb; atoms_sym=:at, weights=ones(length(fdata
         for etype in entry_types
             err[etype][:mse] = p_abs_err(etype,2)
             err[etype][:mae] = p_abs_err(etype,1)
+            err[etype][:rmsd] = sqrt(err[etype][:mse])
         end
         
         p_abs_err(p) = sum(w * mean(abs.(reinterpret(Matrix,f.Γ_true - f.Γ_fit)).^p) for (f,w) in zip(fp,weights))/sum(weights)
         err[:all][:mse] = p_abs_err(2)
         err[:all][:mae] = p_abs_err(1)
+        err[:all][:rmsd] = sqrt(err[:all][:mse])
         
 
     elseif mode ==:rel
@@ -78,6 +80,7 @@ function matrix_entry_errors(fdata, mb; atoms_sym=:at, weights=ones(length(fdata
         p_rel_err(p) = sum(w * mean( (abs.(reinterpret(Matrix,f.Γ_true - f.Γ_fit))./(abs.(reinterpret(Matrix,f.Γ_true)) .+ reg_epsilon)).^p)  for (f,w) in zip(fp,weights))/sum(weights)
         err[:all][:mse] = p_rel_err(2)
         err[:all][:mae] = p_rel_err(1)
+        err[:all][:rmsd] = sqrt(err[:all][:mse])
     end
     return err
 end
