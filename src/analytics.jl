@@ -131,7 +131,7 @@ function error_stats(fdata, mbf;  atoms_sym=:at,reg_epsilon = 0.01)
     df_matrix = DataFrame();
     df_matrix.Data = ["Train (abs)", "Test (abs)", "Train (rel)", "Test (rel)"]
     df_matrix[!, "Frobenius"] = [merrors[tt]["matrix"][ar][:frob] for ar = [:abs,:rel] for tt = ["train","test"] ];
-    df_matrix[!, "Matrix RMSD"] = [merrors[tt]["matrix"][ar][:rmsd] for ar = [:abs,:rel] for tt = ["train","test"] ];
+    df_matrix[!, "Matrix MSE"] = [merrors[tt]["matrix"][ar][:mse] for ar = [:abs,:rel] for tt = ["train","test"] ];
     df_matrix[!, "Matrix RMSE"] = [merrors[tt]["matrix"][ar][:rmsd] for ar = [:abs,:rel] for tt = ["train","test"] ];
     df_matrix[!, "Matrix MAE"] = [merrors[tt]["matrix"][ar][:mae] for ar = [:abs,:rel] for tt = ["train","test"] ];
     @info "Matrix errors" 
@@ -155,7 +155,7 @@ function plot_error(fdata, mbf; merrors=nothing, kvargs...)
             for (i, symb) in enumerate([:diag, :subdiag, :offdiag])
                 xdat = reinterpret(Array{Float64},tentries[tt][:true][symb])
                 ydat = reinterpret(Array{Float64},tentries[tt][:fit][symb])
-                ax[k,i].plot(xdat, ydat, "b.",alpha=.8,markersize=5.0, markeredgecolor="black",markerfacecolor='cadetblue')
+                ax[k,i].plot(xdat, ydat, "b.",alpha=.8,markersize=5.0, markeredgecolor="black",markerfacecolor="cadetblue")
                 ax[k,i].set_aspect("equal", "box")
                 #@show maxpos, maxneg
                 #axis("square")
@@ -229,7 +229,7 @@ function plot_error_all(fdata, mbf; merrors=nothing, kvargs...)
         for (i, symb) in enumerate([:diag, :subdiag, :offdiag])
             xdat = reinterpret(Array{Float64},tentries[tt][:true][symb])
             ydat = reinterpret(Array{Float64},tentries[tt][:fit][symb])
-            ax[k].plot(xdat, ydat, "b.",alpha=.8,markersize=5.0, markeredgecolor="black",markerfacecolor='cadetblue')
+            ax[k].plot(xdat, ydat, "b.",alpha=.8,markersize=5.0, markeredgecolor="black",markerfacecolor="cadetblue")
             ax[k].set_aspect("equal", "box")
             #@show maxpos, maxneg
             #axis("square")
