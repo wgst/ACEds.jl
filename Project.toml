@@ -34,8 +34,6 @@ StatsPlots = "f3b207a7-027a-5e70-b257-86293d7955fd"
 Tullio = "bc48ee85-29a4-5162-ae0b-a64e1601d4bc"
 
 [compat]
-ACE = "0.12.45"
-StaticArrays = "1.0"
 julia = "1.7"
 
 [extras]
